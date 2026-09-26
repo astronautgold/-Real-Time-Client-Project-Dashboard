@@ -1,0 +1,30 @@
+# Node.js Dependencies
+node_modules/
+
+# TypeScript Build Output
+dist/
+*.tsbuildinfo
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+!*.env.example
+
+# Database Files
+dev.db
+dev.db-journal
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -11,12 +11,15 @@ export interface AuthenticatedSocket extends Socket {
 
 class SocketManager {
   private io: SocketIOServer | null = null;
-  private onlineUsers: Map<string, Set<string>> = new Map(); // userId -> Set of socketIds
+  private onlineUsers: Map<string, Set<string>> = new Map();
 
   public init(server: HttpServer): SocketIOServer {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: config.corsOrigins,
+        origin: (origin, callback) => {
+          if (!origin) return callback(null, true);
+          return callback(null, origin);
+        },
         credentials: true,
       },
     });

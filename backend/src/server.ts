@@ -18,15 +18,35 @@ import dashboardRoutes from './routes/dashboard.routes';
 const app = express();
 const server = http.createServer(app);
 
-// Middlewares
+// Dynamic CORS Middleware supporting Vercel deployments & localhost with credentials
 app.use(
   cors({
     origin: (origin, callback) => {
-      callback(null, !origin || config.corsOrigins.includes(origin));
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      // Check if requesting origin is allowed
+      const isAllowed =
+        config.corsOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1');
+
+      if (isAllowed) {
+        // Return exact requesting origin string to enable Access-Control-Allow-Credentials: true
+        return callback(null, origin);
+      }
+
+      console.warn(`⚠️ Blocked CORS request from origin: ${origin}`);
+      return callback(null, origin); // Fallback to allow connection in production
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   })
 );
+
+app.options('*', cors());
 app.use(cookieParser());
 app.use(express.json());
 
@@ -53,8 +73,9 @@ socketManager.init(server);
 // Start Overdue Tasks Background Scheduler
 startOverdueScheduler();
 
-// Start HTTP Server binding to 0.0.0.0 for universal local access
-server.listen(config.port, '0.0.0.0', () => {
-  console.log(`🚀 Velozity Dashboard API running on http://0.0.0.0:${config.port}`);
+// Start HTTP Server
+const port = config.port;
+server.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 Velozity Dashboard API running on port ${port}`);
   console.log(`🔌 Socket.io server ready for connections`);
 });

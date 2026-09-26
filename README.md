@@ -68,10 +68,10 @@ A production-grade full-stack web application built for agency project managemen
 
 #### 1. Backend Setup
 ```bash
-cd backend
+cd server
 npm install
 ```
-Configure `backend/.env`:
+Configure `server/.env`:
 ```env
 PORT=5000
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/velozity_db?schema=public"
